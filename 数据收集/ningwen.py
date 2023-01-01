@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from datetime import datetime
 import pandas as pd
 import os
+import random
 
 # 自动获取宁稳网可转债全表数据
 # 使用前提条件：
@@ -21,7 +22,7 @@ import os
 # 注意：宁稳网访问可转债数据需要通过题目测试才行
 
 # 本地chrome debug端口
-port = '9887'
+port = '9645'
 # chrom本地启动命令路径
 chromeCmdPath = '/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome'
 # 复用本地浏览器
@@ -47,7 +48,7 @@ browser = webdriver.Chrome(service=service, options=chrome_options)
 
 browser.get(url)
 # browser.maximize_window()
-browser.implicitly_wait(5)
+browser.implicitly_wait(1)
 
 df = pd.read_html(
     browser.page_source,
@@ -62,14 +63,17 @@ del df['序号']
 
 now = datetime.now()
 dataStr = now.strftime('%Y-%m-%d')
-# dataStr = '2022-10-24'
+dataStr = '2022-10-26'
 df['日期'] = dataStr
+df = df.set_index(['日期'])
 print(df)
 
+# 备份今日总表
+os.system(f'cp ./data/all_date.csv ./data/all_date_{random.randint(1,999999)}.csv')
 # 备份今日数据
-df.to_csv(f'./data/single_date_{dataStr}.csv', mode='a', index=False)
+df.to_csv(f'./data/single_date_{dataStr}.csv', mode='a')
 # 写入总表
-df.to_csv(f'./data/all_date.csv', mode='a', header=False, index=False)
+df.to_csv(f'./data/all_date.csv', mode='a', header=False)
 # 复制今日总表
 os.system(f'cp ./data/all_date.csv ./data/all_date_{dataStr}.csv')
 
